@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartOP – Patient Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--blue:#2563eb;--green:#16a34a;--red:#dc2626;--yellow:#d97706;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;--bg:#f8fafc;--white:#fff}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+/* NAV */
+nav{background:white;border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-weight:900;font-size:1.1rem;color:var(--blue);text-decoration:none}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-user{font-size:0.85rem;color:var(--muted);font-weight:500}
+.btn-sm{padding:8px 16px;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;border:none;transition:all 0.2s}
+.btn-outline{background:white;border:1.5px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--blue);color:var(--blue)}
+.btn-blue{background:var(--blue);color:white}
+.btn-blue:hover{background:#1d4ed8}
+/* PAGES */
+.page{display:none;padding:28px;max-width:520px;margin:0 auto}
+.page.active{display:block}
+/* CARDS */
+.card{background:white;border:1.5px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px}
+.card-title{font-size:1rem;font-weight:700;margin-bottom:4px}
+.card-sub{font-size:0.82rem;color:var(--muted);margin-bottom:20px}
+/* FORM */
+.fg{margin-bottom:14px}
+label{display:block;font-size:0.78rem;font-weight:600;color:var(--text);margin-bottom:5px}
+input,select{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;transition:border-color 0.2s;color:var(--text);background:white}
+input:focus,select:focus{border-color:var(--blue)}
+.btn-full{width:100%;padding:13px;border-radius:12px;border:none;font-family:'Inter',sans-serif;font-weight:700;font-size:0.95rem;cursor:pointer;transition:all 0.2s;background:var(--blue);color:white;margin-top:6px}
+.btn-full:hover{background:#1d4ed8;transform:translateY(-1px)}
+.btn-full.green{background:var(--green)}
+.btn-full.red{background:var(--red)}
+.link-text{text-align:center;margin-top:14px;font-size:0.82rem;color:var(--muted)}
+.link-text a{color:var(--blue);font-weight:600;cursor:pointer;text-decoration:none}
+/* QUEUE CARD */
+.queue-big{background:linear-gradient(135deg,var(--blue),#3b82f6);border-radius:16px;padding:28px;color:white;margin-bottom:16px}
+.q-label{font-size:0.72rem;font-weight:600;opacity:0.8;text-transform:uppercase;letter-spacing:1px}
+.q-token{font-size:3.2rem;font-weight:900;letter-spacing:-2px;margin:6px 0}
+.q-sub{font-size:0.82rem;opacity:0.85}
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.stat-box{background:white;border:1.5px solid var(--border);border-radius:12px;padding:16px}
+.sb-num{font-size:1.8rem;font-weight:900;line-height:1}
+.sb-label{font-size:0.72rem;color:var(--muted);margin-top:3px}
+.progress-wrap{margin:16px 0}
+.progress-label{display:flex;justify-content:space-between;font-size:0.75rem;color:var(--muted);margin-bottom:6px}
+.progress-bar{height:7px;background:var(--bg);border-radius:100px;overflow:hidden;border:1px solid var(--border)}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),#3b82f6);border-radius:100px;transition:width 1s ease}
+/* ALERT */
+.alert{border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:10px;margin-bottom:16px;font-size:0.85rem;font-weight:500}
+.alert-warn{background:#fffbeb;border:1.5px solid #fde68a;color:#92400e}
+.alert-danger{background:#fff1f2;border:1.5px solid #fecdd3;color:#9f1239;animation:pulse-border 1s infinite}
+.alert-success{background:#f0fdf4;border:1.5px solid #bbf7d0;color:#14532d}
+@keyframes pulse-border{0%,100%{border-color:#fecdd3}50%{border-color:#f43f5e}}
+/* APPT LIST */
+.appt-item{background:white;border:1.5px solid var(--border);border-radius:14px;padding:18px;margin-bottom:12px;cursor:pointer;transition:all 0.2s}
+.appt-item:hover{border-color:var(--blue);box-shadow:0 4px 16px rgba(37,99,235,0.1)}
+.appt-header{display:flex;justify-content:space-between;align-items:flex-start}
+.appt-dept{font-weight:700;font-size:0.95rem}
+.appt-detail{font-size:0.78rem;color:var(--muted);margin-top:3px}
+.appt-token{font-weight:800;color:var(--blue);font-size:0.9rem;margin-top:6px}
+.badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:0.72rem;font-weight:700}
+.badge-confirmed{background:#f0fdf4;color:var(--green)}
+.badge-waiting{background:#fffbeb;color:var(--yellow)}
+.badge-done{background:#f0fdf4;color:var(--green)}
+.badge-cancelled{background:#fff1f2;color:var(--red)}
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--border);display:flex;z-index:99;padding-bottom:env(safe-area-inset-bottom)}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 8px;cursor:pointer;color:var(--muted);font-size:0.68rem;font-weight:500;gap:3px;transition:color 0.2s;border:none;background:transparent;font-family:'Inter',sans-serif}
+.bn-item.active{color:var(--blue)}
+.bn-icon{font-size:1.2rem}
+.has-nav{padding-bottom:80px}
+/* LIVE DOT */
+.live{display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--green);font-weight:600;margin-bottom:12px}
+.live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+/* REFRESH */
+.refresh-info{font-size:0.72rem;color:var(--muted);text-align:center;margin-top:8px}
+/* GRID 2 */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* TOAST */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--text);color:white;padding:10px 20px;border-radius:100px;font-size:0.82rem;font-weight:600;z-index:999;display:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.15)}
+.toast.show{display:block}
+.toast.success{background:var(--green)}
+.toast.error{background:var(--red)}
+/* SECTION TITLE */
+.sec-title{font-size:1.1rem;font-weight:800;margin-bottom:16px}
+.empty-state{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty-icon{font-size:2.5rem;margin-bottom:12px}
+.empty-text{font-size:0.88rem}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="index.html">← SmartOP</a>
+  <div class="nav-right">
+    <span class="nav-user" id="nav-username">Loading...</span>
+    <button class="btn-sm btn-outline" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<!-- PAGE: DASHBOARD -->
+<div class="page active has-nav" id="page-home">
+  <div class="sec-title">My Appointments</div>
+  <button class="btn-full" onclick="showPage('page-book')" style="margin-bottom:20px">+ Book New Appointment</button>
+  <div id="appt-list"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No appointments yet.<br>Book your first one above!</div></div></div>
+</div>
+
+<!-- PAGE: BOOK -->
+<div class="page has-nav" id="page-book">
+  <div class="card">
+    <div class="card-title">Book Appointment</div>
+    <div class="card-sub">Choose your slot and get an instant token</div>
+    <div class="fg"><label>Hospital</label>
+      <select id="bk-hospital">
+        <option>Government General Hospital, Salem</option>
+        <option>ESI Hospital, Salem</option>
+        <option>District HQ Hospital</option>
+      </select>
+    </div>
+    <div class="fg"><label>Department</label>
+      <select id="bk-dept">
+        <option>General Medicine</option><option>Cardiology</option>
+        <option>Orthopedics</option><option>Pediatrics</option>
+        <option>Dermatology</option><option>ENT</option>
+        <option>Ophthalmology</option><option>Gynecology</option>
+      </select>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>Doctor ID</label><input id="bk-docid" placeholder="e.g. DR001"></div>
+      <div class="fg"><label>Doctor Name</label><input id="bk-docname" placeholder="e.g. Dr. Rajesh"></div>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>Date</label><input type="date" id="bk-date"></div>
+      <div class="fg"><label>Time Slot</label>
+        <select id="bk-time">
+          <option>09:00 AM</option><option>09:30 AM</option>
+          <option>10:00 AM</option><option>10:30 AM</option>
+          <option>11:00 AM</option><option>11:30 AM</option>
+          <option>12:00 PM</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label>Reason (optional)</label><input id="bk-reason" placeholder="Brief description of your issue"></div>
+    <button class="btn-full" onclick="bookAppointment()">Confirm & Get Token →</button>
+  </div>
+</div>
+
+<!-- PAGE: QUEUE -->
+<div class="page has-nav" id="page-queue">
+  <div class="live"><span class="live-dot"></span>Live Queue — Updates Every 30s</div>
+  <div id="queue-content">
+    <div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">Select an appointment to track queue</div></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="bn-item active" onclick="switchTab('page-home',this)"><span class="bn-icon">🏠</span>Home</button>
+  <button class="bn-item" onclick="switchTab('page-book',this)"><span class="bn-icon">📅</span>Book</button>
+  <button class="bn-item" onclick="switchTab('page-queue',this)"><span class="bn-icon">📊</span>Queue</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'http://localhost:8080/api';
+let currentUser = null;
+let currentApptId = null;
+let queueInterval = null;
+let refreshCountdown = 30;
+
+// ── INIT ──
+window.onload = function() {
+  const stored = localStorage.getItem('patient');
+  if (!stored) { window.location.href = 'index.html'; return; }
+  currentUser = JSON.parse(stored);
+  document.getElementById('nav-username').textContent = currentUser.name;
+  document.getElementById('bk-date').min = new Date().toISOString().split('T')[0];
+  loadAppointments();
+};
+
+function logout() {
+  localStorage.removeItem('patient');
+  window.location.href = 'index.html';
+}
+
+// ── PAGE NAV ──
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function switchTab(pageId, el) {
+  document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  showPage(pageId);
+  if (pageId === 'page-queue' && currentApptId) startQueuePolling(currentApptId);
+}
+
+// ── LOAD APPOINTMENTS ──
+async function loadAppointments() {
+  try {
+    const res = await fetch(API + '/patient/appointments/' + currentUser.patientId);
+    const appts = await res.json();
+    renderAppointments(appts);
+  } catch(e) { showToast('Could not load appointments', 'error'); }
+}
+
+function renderAppointments(appts) {
+  const el = document.getElementById('appt-list');
+  if (!appts || appts.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No appointments yet.<br>Book your first one above!</div></div>';
+    return;
+  }
+  el.innerHTML = appts.map(a => `
+    <div class="appt-item" onclick="trackQueue(${a.id}, '${a.tokenNumber}', '${a.department}', '${a.doctorName}')">
+      <div class="appt-header">
+        <div>
+          <div class="appt-dept">${a.department}</div>
+          <div class="appt-detail">${a.doctorName} · ${a.date} · ${a.timeSlot}</div>
+          <div class="appt-token">${a.tokenNumber}</div>
+        </div>
+        <span class="badge badge-${a.status}">${a.status.charAt(0).toUpperCase()+a.status.slice(1)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── BOOK APPOINTMENT ──
+async function bookAppointment() {
+  const hospital = document.getElementById('bk-hospital').value;
+  const department = document.getElementById('bk-dept').value;
+  const doctorId = document.getElementById('bk-docid').value.trim();
+  const doctorName = document.getElementById('bk-docname').value.trim();
+  const date = document.getElementById('bk-date').value;
+  const timeSlot = document.getElementById('bk-time').value;
+  const reason = document.getElementById('bk-reason').value;
+
+  if (!date) { showToast('Please select a date', 'error'); return; }
+  if (!doctorId || !doctorName) { showToast('Please enter Doctor ID and Name', 'error'); return; }
+
+  try {
+    const res = await fetch(API + '/patient/book', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        patientId: String(currentUser.patientId),
+        patientName: currentUser.name,
+        hospital, department, doctorId, doctorName,
+        date, timeSlot, reason
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('✅ Booked! Token: ' + data.tokenNumber);
+      loadAppointments();
+      trackQueue(data.appointmentId, data.tokenNumber, department, doctorName);
+      setTimeout(() => switchTab('page-queue', document.querySelectorAll('.bn-item')[2]), 1200);
+    } else {
+      showToast(data.message || 'Booking failed', 'error');
+    }
+  } catch(e) { showToast('Cannot connect to server', 'error'); }
+}
+
+// ── QUEUE TRACKER ──
+function trackQueue(apptId, token, dept, doctor) {
+  currentApptId = apptId;
+  switchTab('page-queue', document.querySelectorAll('.bn-item')[2]);
+  startQueuePolling(apptId);
+}
+
+async function fetchQueueData(apptId) {
+  try {
+    const res = await fetch(API + '/patient/queue/' + apptId);
+    const data = await res.json();
+    renderQueue(data);
+  } catch(e) {}
+}
+
+function renderQueue(data) {
+  if (!data.success) return;
+  const ahead = data.ahead;
+  const waitMins = data.waitMins;
+  const current = data.currentServing;
+  const total = data.totalToday;
+  const progress = total > 0 ? Math.round((current / total) * 100) : 0;
+  const aheadColor = ahead === 0 ? 'var(--green)' : ahead <= 2 ? 'var(--red)' : 'var(--yellow)';
+
+  let alertHTML = '';
+  if (data.yourTurn) {
+    alertHTML = `<div class="alert alert-danger">🚨 <b>IT'S YOUR TURN!</b> Please go to the OPD counter now!</div>`;
+  } else if (data.alert) {
+    alertHTML = `<div class="alert alert-warn">⚠️ Only <b>${ahead}</b> patient${ahead>1?'s':''} ahead — head to hospital OPD now!</div>`;
+  } else if (ahead === 0 && data.status !== 'consulting') {
+    alertHTML = `<div class="alert alert-success">✅ You have been attended. Thank you!</div>`;
+  }
+
+  document.getElementById('queue-content').innerHTML = `
+    ${alertHTML}
+    <div class="queue-big">
+      <div class="q-label">Your Token Number</div>
+      <div class="q-token">${data.tokenNumber}</div>
+      <div class="q-sub">${document.getElementById('bk-dept')?.value || 'Department'}</div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="sb-num" style="color:${aheadColor}">${ahead}</div>
+        <div class="sb-label">Patients ahead</div>
+      </div>
+      <div class="stat-box">
+        <div class="sb-num" style="color:var(--blue)">~${waitMins}</div>
+        <div class="sb-label">Est. wait (mins)</div>
+      </div>
+      <div class="stat-box">
+        <div class="sb-num" style="color:var(--text);font-size:1.2rem">OP-${String(current).padStart(3,'0')}</div>
+        <div class="sb-label">Now serving</div>
+      </div>
+      <div class="stat-box">
+        <div class="sb-num" style="color:var(--muted)">${total}</div>
+        <div class="sb-label">Total today</div>
+      </div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Queue progress</span><span>${current} / ${total} done</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+    </div>
+    <button class="btn-full" onclick="fetchQueueData(${currentApptId})" style="margin-bottom:10px">↻ Refresh Now</button>
+    <button class="btn-full red" onclick="cancelAppt(${currentApptId})">Cancel Appointment</button>
+    <div class="refresh-info" id="refresh-info">Auto-refreshes in 30s</div>
+  `;
+
+  if (ahead <= 2 && ahead > 0 && !window.alertPlayed) {
+    playBeep(); window.alertPlayed = true;
+  }
+  if (ahead > 2) window.alertPlayed = false;
+}
+
+function startQueuePolling(apptId) {
+  clearInterval(queueInterval);
+  refreshCountdown = 30;
+  fetchQueueData(apptId);
+  queueInterval = setInterval(() => {
+    refreshCountdown--;
+    const el = document.getElementById('refresh-info');
+    if (el) el.textContent = 'Auto-refreshes in ' + refreshCountdown + 's';
+    if (refreshCountdown <= 0) {
+      refreshCountdown = 30;
+      fetchQueueData(apptId);
+    }
+  }, 1000);
+}
+
+async function cancelAppt(apptId) {
+  if (!confirm('Cancel this appointment?')) return;
+  try {
+    const res = await fetch(API + '/patient/cancel/' + apptId, { method: 'PUT' });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Appointment cancelled');
+      clearInterval(queueInterval);
+      loadAppointments();
+      switchTab('page-home', document.querySelectorAll('.bn-item')[0]);
+    }
+  } catch(e) { showToast('Error cancelling', 'error'); }
+}
+
+function playBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.4, 0.8].forEach(t => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = 880;
+      g.gain.setValueAtTime(0.3, ctx.currentTime + t);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.3);
+      o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.3);
+    });
+  } catch(e) {}
+}
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 3000);
+}
+</script>
+</body>
+</html>

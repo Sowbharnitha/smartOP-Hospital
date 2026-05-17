@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartOP – Hospital Queue System</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--blue:#2563eb;--green:#16a34a;--red:#dc2626;--purple:#7c3aed;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;--bg:#f8fafc}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+/* NAV */
+nav{background:white;border-bottom:1px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-weight:900;font-size:1.2rem;color:var(--blue)}
+.logo span{color:var(--text)}
+.nav-tag{background:#eff6ff;color:var(--blue);padding:4px 12px;border-radius:100px;font-size:0.75rem;font-weight:700}
+/* HERO */
+.hero{padding:80px 32px 60px;text-align:center;background:linear-gradient(135deg,#f0f7ff,#fff,#f0fdf4);position:relative;overflow:hidden;min-height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center}
+.hero-inner{max-width:700px;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:white;border:1.5px solid var(--border);padding:8px 18px;border-radius:100px;font-size:0.8rem;font-weight:600;color:var(--muted);margin-bottom:28px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.badge-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(1.4)}}
+.hero-title{font-size:3.2rem;font-weight:900;letter-spacing:-2px;line-height:1.1;margin-bottom:18px}
+.hero-title .blue{color:var(--blue)}
+.hero-title .green{color:var(--green)}
+.hero-sub{font-size:1rem;color:var(--muted);line-height:1.7;margin-bottom:48px;max-width:520px;margin-left:auto;margin-right:auto}
+/* PORTAL CARDS */
+.portals{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:780px;margin:0 auto 48px}
+.portal-card{background:white;border:1.5px solid var(--border);border-radius:20px;padding:28px 22px;cursor:pointer;transition:all 0.25s;text-align:left;position:relative;overflow:hidden}
+.portal-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;transition:height 0.25s}
+.pc-blue::before{background:var(--blue)}
+.pc-green::before{background:var(--green)}
+.pc-purple::before{background:var(--purple)}
+.portal-card:hover{transform:translateY(-6px);box-shadow:0 20px 48px rgba(0,0,0,0.1)}
+.portal-card:hover::before{height:4px}
+.pc-icon{font-size:2.2rem;margin-bottom:14px;display:block}
+.pc-title{font-weight:800;font-size:1.05rem;margin-bottom:6px}
+.pc-desc{font-size:0.78rem;color:var(--muted);line-height:1.6;margin-bottom:18px}
+.pc-features{display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
+.pcf{font-size:0.75rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.pcf-check{font-size:0.7rem}
+.pcf-check.blue{color:var(--blue)}
+.pcf-check.green{color:var(--green)}
+.pcf-check.purple{color:var(--purple)}
+.pc-btn{width:100%;padding:10px;border-radius:10px;border:none;font-family:'Inter',sans-serif;font-weight:700;font-size:0.82rem;cursor:pointer;transition:all 0.2s}
+.pc-btn.blue{background:#eff6ff;color:var(--blue)}
+.pc-btn.green{background:#f0fdf4;color:var(--green)}
+.pc-btn.purple{background:#f5f3ff;color:var(--purple)}
+.portal-card:hover .pc-btn.blue{background:var(--blue);color:white}
+.portal-card:hover .pc-btn.green{background:var(--green);color:white}
+.portal-card:hover .pc-btn.purple{background:var(--purple);color:white}
+/* STATS */
+.hero-stats{display:flex;gap:40px;justify-content:center}
+.stat{text-align:center}
+.stat-num{font-size:1.5rem;font-weight:900;letter-spacing:-1px;color:var(--text)}
+.stat-label{font-size:0.72rem;color:var(--muted);margin-top:2px;font-weight:500}
+/* BG DECORATION */
+.bg-circle1{position:absolute;top:-100px;right:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(37,99,235,0.06),transparent 70%);border-radius:50%}
+.bg-circle2{position:absolute;bottom:-80px;left:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(22,163,74,0.05),transparent 70%);border-radius:50%}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:white;border-radius:20px;width:100%;max-width:400px;padding:32px;position:relative;box-shadow:0 32px 64px rgba(0,0,0,0.15);animation:modal-in 0.3s ease}
+@keyframes modal-in{from{opacity:0;transform:scale(0.94)translateY(8px)}to{opacity:1;transform:scale(1)translateY(0)}}
+.modal-close{position:absolute;top:16px;right:16px;background:var(--bg);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:0.9rem;color:var(--muted);display:flex;align-items:center;justify-content:center}
+.modal-top{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.modal-icon{font-size:1.8rem}
+.modal-title{font-size:1.2rem;font-weight:800}
+.modal-sub{color:var(--muted);font-size:0.82rem;margin-bottom:24px}
+/* TABS */
+.tabs{display:flex;gap:4px;background:var(--bg);padding:4px;border-radius:10px;margin-bottom:22px}
+.tab{flex:1;padding:8px;border-radius:8px;border:none;font-family:'Inter',sans-serif;font-weight:600;font-size:0.8rem;cursor:pointer;background:transparent;color:var(--muted);transition:all 0.15s}
+.tab.active{background:white;color:var(--text);box-shadow:0 2px 6px rgba(0,0,0,0.08)}
+/* FORM */
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:0.75rem;font-weight:600;margin-bottom:5px;color:var(--text)}
+.fg input,.fg select{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:9px;font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;transition:border-color 0.2s;color:var(--text);background:white}
+.fg input:focus,.fg select:focus{border-color:var(--blue)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-btn{width:100%;padding:12px;border-radius:10px;border:none;font-family:'Inter',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.2s;margin-top:4px;color:white}
+.form-btn.blue{background:var(--blue)}
+.form-btn.blue:hover{background:#1d4ed8}
+.form-btn.green{background:var(--green)}
+.form-btn.green:hover{background:#15803d}
+.form-btn.purple{background:var(--purple)}
+.form-btn.purple:hover{background:#6d28d9}
+.form-link{text-align:center;margin-top:14px;font-size:0.8rem;color:var(--muted)}
+.form-link a{color:var(--blue);font-weight:600;cursor:pointer}
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--text);color:white;padding:10px 22px;border-radius:100px;font-size:0.82rem;font-weight:600;z-index:999;display:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.15)}
+.toast.show{display:block}
+.toast.success{background:var(--green)}
+.toast.error{background:var(--red)}
+@media(max-width:640px){
+  .portals{grid-template-columns:1fr}
+  .hero-title{font-size:2.2rem}
+  .hero-stats{gap:24px}
+  nav{padding:0 16px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Smart<span>OP</span></div>
+  <div class="nav-tag">🏥 Hospital Queue System</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="bg-circle1"></div>
+  <div class="bg-circle2"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Live Queue Tracking — No App Download Needed
+    </div>
+    <h1 class="hero-title">
+      Skip the Queue,<br>
+      <span class="blue">Not</span> the <span class="green">Care.</span>
+    </h1>
+    <p class="hero-sub">
+      Book your OP slot from home, track your queue position live, and get alerted when your turn is near. No more standing for hours.
+    </p>
+
+    <!-- PORTAL CARDS -->
+    <div class="portals">
+
+      <!-- PATIENT -->
+      <div class="portal-card pc-blue" onclick="openModal('patient')">
+        <span class="pc-icon">🧑‍⚕️</span>
+        <div class="pc-title">Patient Portal</div>
+        <div class="pc-desc">Book appointments and track your live queue from anywhere.</div>
+        <div class="pc-features">
+          <div class="pcf"><span class="pcf-check blue">✓</span> Book OP slot online</div>
+          <div class="pcf"><span class="pcf-check blue">✓</span> Live queue tracker</div>
+          <div class="pcf"><span class="pcf-check blue">✓</span> Alert when turn is near</div>
+        </div>
+        <button class="pc-btn blue">Login / Register →</button>
+      </div>
+
+      <!-- DOCTOR -->
+      <div class="portal-card pc-green" onclick="openModal('doctor')">
+        <span class="pc-icon">👨‍⚕️</span>
+        <div class="pc-title">Doctor Portal</div>
+        <div class="pc-desc">Manage your daily patient queue efficiently and easily.</div>
+        <div class="pc-features">
+          <div class="pcf"><span class="pcf-check green">✓</span> View today's queue</div>
+          <div class="pcf"><span class="pcf-check green">✓</span> Call next patient</div>
+          <div class="pcf"><span class="pcf-check green">✓</span> Mark done / no-show</div>
+        </div>
+        <button class="pc-btn green">Doctor Login →</button>
+      </div>
+
+      <!-- ADMIN -->
+      <div class="portal-card pc-purple" onclick="openModal('admin')">
+        <span class="pc-icon">🏥</span>
+        <div class="pc-title">Admin Portal</div>
+        <div class="pc-desc">Full control over doctors, departments and reports.</div>
+        <div class="pc-features">
+          <div class="pcf"><span class="pcf-check purple">✓</span> Manage doctors</div>
+          <div class="pcf"><span class="pcf-check purple">✓</span> Live queue monitor</div>
+          <div class="pcf"><span class="pcf-check purple">✓</span> Reports & analytics</div>
+        </div>
+        <button class="pc-btn purple">Admin Login →</button>
+      </div>
+
+    </div>
+
+    <!-- STATS -->
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">2,400+</div><div class="stat-label">Patients served daily</div></div>
+      <div class="stat"><div class="stat-num">18 min</div><div class="stat-label">Avg wait reduced</div></div>
+      <div class="stat"><div class="stat-num">12</div><div class="stat-label">Departments</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PATIENT MODAL ══ -->
+<div class="modal-overlay" id="modal-patient">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('patient')">✕</button>
+    <div class="modal-top"><span class="modal-icon">🧑‍⚕️</span><div class="modal-title">Patient Portal</div></div>
+    <div class="modal-sub">Login or create a new account</div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('p','login',this)">Login</button>
+      <button class="tab" onclick="switchTab('p','register',this)">Register</button>
+    </div>
+    <!-- LOGIN -->
+    <div id="p-login">
+      <div class="fg"><label>Mobile Number</label><input id="pl-mobile" type="tel" placeholder="10-digit mobile" maxlength="10"></div>
+      <div class="fg"><label>Password</label><input id="pl-pass" type="password" placeholder="Your password"></div>
+      <button class="form-btn blue" onclick="patientLogin()">Login →</button>
+      <div class="form-link">No account? <a onclick="switchTabDirect('p','register')">Register here</a></div>
+    </div>
+    <!-- REGISTER -->
+    <div id="p-register" style="display:none">
+      <div class="fg"><label>Full Name</label><input id="pr-name" placeholder="Your full name"></div>
+      <div class="fg"><label>Mobile Number</label><input id="pr-mobile" type="tel" placeholder="10-digit mobile" maxlength="10"></div>
+      <div class="grid2">
+        <div class="fg"><label>Age</label><input id="pr-age" type="number" placeholder="Age" min="1" max="120"></div>
+        <div class="fg"><label>Gender</label><select id="pr-gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+      </div>
+      <div class="fg"><label>Password</label><input id="pr-pass" type="password" placeholder="Create password"></div>
+      <button class="form-btn blue" onclick="patientRegister()">Create Account →</button>
+      <div class="form-link">Already registered? <a onclick="switchTabDirect('p','login')">Login here</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DOCTOR MODAL ══ -->
+<div class="modal-overlay" id="modal-doctor">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('doctor')">✕</button>
+    <div class="modal-top"><span class="modal-icon">👨‍⚕️</span><div class="modal-title">Doctor Login</div></div>
+    <div class="modal-sub">Enter your Doctor ID and password given by admin</div>
+    <div class="fg"><label>Doctor ID</label><input id="dl-id" placeholder="e.g. DR001"></div>
+    <div class="fg"><label>Password</label><input id="dl-pass" type="password" placeholder="Your password"></div>
+    <button class="form-btn green" onclick="doctorLogin()">Login to Dashboard →</button>
+    <div class="form-link" style="margin-top:14px">Contact admin to get your Doctor ID and password</div>
+  </div>
+</div>
+
+<!-- ══ ADMIN MODAL ══ -->
+<div class="modal-overlay" id="modal-admin">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('admin')">✕</button>
+    <div class="modal-top"><span class="modal-icon">🏥</span><div class="modal-title">Admin Login</div></div>
+    <div class="modal-sub">Default: ADMIN001 / admin123</div>
+    <div class="fg"><label>Admin ID</label><input id="al-id" placeholder="ADMIN001" value="ADMIN001"></div>
+    <div class="fg"><label>Password</label><input id="al-pass" type="password" placeholder="admin123" value="admin123"></div>
+    <button class="form-btn purple" onclick="adminLogin()">Login to Panel →</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'http://localhost:8080/api';
+
+// ── MODAL ──
+function openModal(type) {
+  document.getElementById('modal-'+type).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(type) {
+  document.getElementById('modal-'+type).classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => {
+    if (e.target === m) { m.classList.remove('open'); document.body.style.overflow = ''; }
+  });
+});
+
+// ── TABS ──
+function switchTab(prefix, tab, el) {
+  el.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(prefix+'-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById(prefix+'-register').style.display = tab === 'register' ? 'block' : 'none';
+}
+function switchTabDirect(prefix, tab) {
+  document.getElementById(prefix+'-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById(prefix+'-register').style.display = tab === 'register' ? 'block' : 'none';
+  const tabs = document.querySelectorAll('#modal-patient .tab');
+  tabs.forEach(t => t.classList.remove('active'));
+  tabs[tab === 'login' ? 0 : 1].classList.add('active');
+}
+
+// ── PATIENT LOGIN ──
+async function patientLogin() {
+  const mobile = document.getElementById('pl-mobile').value.trim();
+  const password = document.getElementById('pl-pass').value;
+  if (!mobile || !password) { showToast('Fill all fields', 'error'); return; }
+  try {
+    const res = await fetch(API+'/patient/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ mobile, password })
+    });
+    const data = await res.json();
+    if (data.success) {
+      localStorage.setItem('patient', JSON.stringify(data));
+      showToast('✅ Welcome, '+data.name+'!');
+      setTimeout(() => window.location.href='patient.html', 1000);
+    } else {
+      showToast(data.message || 'Invalid credentials', 'error');
+    }
+  } catch(e) { showToast('Cannot connect — is backend running?', 'error'); }
+}
+
+// ── PATIENT REGISTER ──
+async function patientRegister() {
+  const name = document.getElementById('pr-name').value.trim();
+  const mobile = document.getElementById('pr-mobile').value.trim();
+  const age = document.getElementById('pr-age').value;
+  const gender = document.getElementById('pr-gender').value;
+  const password = document.getElementById('pr-pass').value;
+  if (!name||!mobile||!age||!gender||!password) { showToast('Fill all fields', 'error'); return; }
+  if (mobile.length !== 10) { showToast('Enter valid 10-digit mobile', 'error'); return; }
+  try {
+    const res = await fetch(API+'/patient/register', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ name, mobile, age, gender, password })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('✅ Registered! Please login now.');
+      switchTabDirect('p','login');
+    } else {
+      showToast(data.message || 'Registration failed', 'error');
+    }
+  } catch(e) { showToast('Cannot connect to server', 'error'); }
+}
+
+// ── DOCTOR LOGIN ──
+async function doctorLogin() {
+  const doctorId = document.getElementById('dl-id').value.trim();
+  const password = document.getElementById('dl-pass').value;
+  if (!doctorId||!password) { showToast('Fill all fields', 'error'); return; }
+  try {
+    const res = await fetch(API+'/doctor/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ doctorId, password })
+    });
+    const data = await res.json();
+    if (data.success) {
+      localStorage.setItem('doctor', JSON.stringify(data));
+      showToast('✅ Welcome, '+data.name+'!');
+      setTimeout(() => window.location.href='doctor.html', 1000);
+    } else {
+      showToast(data.message || 'Invalid credentials', 'error');
+    }
+  } catch(e) { showToast('Cannot connect to server', 'error'); }
+}
+
+// ── ADMIN LOGIN ──
+async function adminLogin() {
+  const adminId = document.getElementById('al-id').value.trim();
+  const password = document.getElementById('al-pass').value;
+  if (!adminId||!password) { showToast('Fill all fields', 'error'); return; }
+  try {
+    const res = await fetch(API+'/admin/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ adminId, password })
+    });
+    const data = await res.json();
+    if (data.success) {
+      localStorage.setItem('admin', JSON.stringify(data));
+      showToast('✅ Welcome, Admin!');
+      setTimeout(() => window.location.href='admin.html', 1000);
+    } else {
+      showToast(data.message || 'Invalid credentials', 'error');
+    }
+  } catch(e) { showToast('Cannot connect to server', 'error'); }
+}
+
+// ── TOAST ──
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show '+type;
+  setTimeout(() => t.className = 'toast', 3000);
+}
+</script>
+</body>
+</html>

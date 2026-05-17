@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartOP – Doctor Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--blue:#2563eb;--green:#16a34a;--red:#dc2626;--yellow:#d97706;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;--bg:#f8fafc;--white:#fff}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{background:white;border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-weight:900;font-size:1.1rem;color:var(--green)}
+.nav-right{display:flex;align-items:center;gap:10px}
+.nav-badge{background:#f0fdf4;color:var(--green);border:1px solid #bbf7d0;padding:4px 12px;border-radius:100px;font-size:0.75rem;font-weight:700}
+.btn-sm{padding:7px 14px;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:white;color:var(--text)}
+.wrap{max-width:900px;margin:0 auto;padding:24px}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat-card{background:white;border:1.5px solid var(--border);border-radius:14px;padding:16px}
+.sc-num{font-size:1.8rem;font-weight:900;line-height:1}
+.sc-label{font-size:0.72rem;color:var(--muted);margin-top:3px}
+.serving-card{background:linear-gradient(135deg,var(--green),#22c55e);border-radius:16px;padding:22px;color:white;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.serving-label{font-size:0.72rem;font-weight:600;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.serving-token{font-size:2.2rem;font-weight:900;letter-spacing:-1px}
+.serving-name{font-size:0.85rem;opacity:0.9}
+.next-box{text-align:right}
+.next-label{font-size:0.72rem;opacity:0.7;margin-bottom:4px}
+.next-token{font-size:1.4rem;font-weight:800}
+.controls{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.btn-action{padding:11px 20px;border-radius:10px;font-weight:700;font-size:0.85rem;cursor:pointer;border:none;transition:all 0.2s;font-family:'Inter',sans-serif}
+.btn-green{background:var(--green);color:white}
+.btn-green:hover{background:#15803d}
+.btn-yellow{background:#fffbeb;color:var(--yellow);border:1.5px solid #fde68a}
+.btn-yellow:hover{background:#fef3c7}
+.table-card{background:white;border:1.5px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px}
+.table-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border)}
+.table-title{font-weight:700;font-size:0.9rem}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px 20px;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);border-bottom:1px solid var(--border);font-weight:600}
+td{padding:14px 20px;border-bottom:1px solid var(--border);font-size:0.85rem;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr{transition:background 0.15s;cursor:default}
+tbody tr:hover{background:var(--bg)}
+.token-cell{font-weight:800;color:var(--blue);font-size:0.9rem}
+.patient-name{font-weight:600}
+.patient-meta{font-size:0.75rem;color:var(--muted);margin-top:2px}
+.badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:0.72rem;font-weight:700}
+.badge-waiting{background:#fffbeb;color:var(--yellow)}
+.badge-consulting{background:#eff6ff;color:var(--blue)}
+.badge-done{background:#f0fdf4;color:var(--green)}
+.badge-noshow{background:#fff1f2;color:var(--red)}
+.action-group{display:flex;gap:6px;flex-wrap:wrap}
+.act-btn{padding:5px 12px;border-radius:7px;font-size:0.75rem;font-weight:700;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all 0.15s}
+.act-btn:active{transform:scale(0.95)}
+.ab-call{background:#eff6ff;color:var(--blue)}
+.ab-done{background:#f0fdf4;color:var(--green)}
+.ab-noshow{background:#fff1f2;color:var(--red)}
+.break-bar{background:#fffbeb;border:1.5px solid #fde68a;border-radius:12px;padding:12px 16px;display:none;justify-content:space-between;align-items:center;margin-bottom:16px}
+.break-bar.active{display:flex}
+.break-text{color:var(--yellow);font-weight:600;font-size:0.85rem}
+.live{display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--green);font-weight:600;margin-bottom:16px}
+.live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:white;padding:10px 20px;border-radius:12px;font-size:0.82rem;font-weight:600;z-index:999;display:none;box-shadow:0 4px 16px rgba(0,0,0,0.15)}
+.toast.show{display:block}
+.toast.success{background:var(--green)}
+.toast.error{background:var(--red)}
+@media(max-width:640px){.stats-row{grid-template-columns:1fr 1fr}.wrap{padding:16px}th:nth-child(3),td:nth-child(3){display:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">SmartOP</div>
+  <div class="nav-right">
+    <span class="nav-badge">🩺 Doctor</span>
+    <span style="font-size:0.82rem;color:var(--muted);font-weight:500" id="doc-name-nav">Loading...</span>
+    <button class="btn-sm" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="live"><span class="live-dot"></span>Live Queue — <span id="doc-dept-label">Loading...</span></div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card"><div class="sc-num" style="color:var(--yellow)" id="s-waiting">0</div><div class="sc-label">Waiting</div></div>
+    <div class="stat-card"><div class="sc-num" style="color:var(--blue)" id="s-consulting">0</div><div class="sc-label">Consulting</div></div>
+    <div class="stat-card"><div class="sc-num" style="color:var(--green)" id="s-done">0</div><div class="sc-label">Done</div></div>
+    <div class="stat-card"><div class="sc-num" style="color:var(--red)" id="s-noshow">0</div><div class="sc-label">No Show</div></div>
+  </div>
+
+  <!-- SERVING -->
+  <div class="serving-card">
+    <div>
+      <div class="serving-label">Currently Consulting</div>
+      <div class="serving-token" id="cur-token">—</div>
+      <div class="serving-name" id="cur-name">No active patient</div>
+    </div>
+    <div class="next-box">
+      <div class="next-label">Next Up</div>
+      <div class="next-token" id="next-token">—</div>
+      <div style="font-size:0.75rem;opacity:0.8;margin-top:3px" id="next-name"></div>
+    </div>
+  </div>
+
+  <!-- BREAK BAR -->
+  <div class="break-bar" id="break-bar">
+    <div class="break-text">⏸ On break — patients are being notified</div>
+    <button class="act-btn ab-done" onclick="endBreak()" style="padding:8px 16px">▶ Resume</button>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <button class="btn-action btn-yellow" onclick="takeBreak()">⏸ Take Break</button>
+    <button class="btn-action btn-green" onclick="callNext()">Call Next Patient →</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-title">Today's Queue</div>
+      <button class="btn-sm" onclick="loadQueue()" style="font-size:0.75rem">↻ Refresh</button>
+    </div>
+    <table>
+      <thead><tr><th>Token</th><th>Patient</th><th>Reason</th><th>Time</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="queue-tbody"><tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">Loading queue...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'http://localhost:8080/api';
+let doctor = null;
+
+window.onload = function() {
+  const stored = localStorage.getItem('doctor');
+  if (!stored) { window.location.href = 'index.html'; return; }
+  doctor = JSON.parse(stored);
+  document.getElementById('doc-name-nav').textContent = doctor.name;
+  document.getElementById('doc-dept-label').textContent = doctor.department + ' · ' + doctor.name;
+  loadQueue();
+  setInterval(loadQueue, 30000);
+};
+
+function logout() { localStorage.removeItem('doctor'); window.location.href = 'index.html'; }
+
+async function loadQueue() {
+  try {
+    const res = await fetch(API + '/doctor/queue/' + doctor.doctorId);
+    const queue = await res.json();
+    renderQueue(queue);
+  } catch(e) { showToast('Could not load queue', 'error'); }
+}
+
+function renderQueue(queue) {
+  const waiting = queue.filter(q => q.status === 'waiting');
+  const consulting = queue.find(q => q.status === 'consulting');
+  const done = queue.filter(q => q.status === 'done');
+  const noshow = queue.filter(q => q.status === 'noshow');
+
+  document.getElementById('s-waiting').textContent = waiting.length;
+  document.getElementById('s-consulting').textContent = consulting ? 1 : 0;
+  document.getElementById('s-done').textContent = done.length;
+  document.getElementById('s-noshow').textContent = noshow.length;
+
+  if (consulting) {
+    document.getElementById('cur-token').textContent = consulting.tokenNumber;
+    document.getElementById('cur-name').textContent = consulting.patientName;
+  } else {
+    document.getElementById('cur-token').textContent = '—';
+    document.getElementById('cur-name').textContent = 'No active patient';
+  }
+
+  const next = waiting[0];
+  document.getElementById('next-token').textContent = next ? next.tokenNumber : '—';
+  document.getElementById('next-name').textContent = next ? next.patientName : '';
+
+  const tbody = document.getElementById('queue-tbody');
+  if (queue.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">No patients booked today</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = queue.map(p => `
+    <tr style="${p.status==='consulting'?'background:#f0f9ff':''}">
+      <td class="token-cell">${p.tokenNumber}</td>
+      <td><div class="patient-name">${p.patientName}</div></td>
+      <td style="color:var(--muted)">${p.reason||'—'}</td>
+      <td style="color:var(--muted)">${p.timeSlot}</td>
+      <td><span class="badge badge-${p.status}">${p.status.charAt(0).toUpperCase()+p.status.slice(1)}</span></td>
+      <td>
+        <div class="action-group">
+          ${p.status==='waiting'?`<button class="act-btn ab-call" onclick="markStatus(${p.id},'consulting')">▶ Call</button>`:''}
+          ${p.status==='consulting'?`<button class="act-btn ab-done" onclick="markStatus(${p.id},'done')">✓ Done</button>`:''}
+          ${p.status!=='done'&&p.status!=='noshow'?`<button class="act-btn ab-noshow" onclick="markStatus(${p.id},'noshow')">✗ No Show</button>`:''}
+          ${p.status==='done'||p.status==='noshow'?`<span style="color:var(--muted);font-size:0.75rem">Closed</span>`:''}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function markStatus(apptId, status) {
+  try {
+    const res = await fetch(`${API}/doctor/status/${apptId}?status=${status}`, { method: 'PUT' });
+    const data = await res.json();
+    if (data.success) { showToast('Status updated!'); loadQueue(); }
+  } catch(e) { showToast('Error updating status', 'error'); }
+}
+
+async function callNext() {
+  try {
+    const res = await fetch(`${API}/doctor/callnext/${doctor.doctorId}`, { method: 'PUT' });
+    const data = await res.json();
+    if (data.success) { showToast('▶ Called: ' + data.calledName); loadQueue(); }
+    else showToast(data.message || 'No patients waiting', 'error');
+  } catch(e) { showToast('Error calling next', 'error'); }
+}
+
+function takeBreak() { document.getElementById('break-bar').classList.add('active'); showToast('⏸ Break started'); }
+function endBreak() { document.getElementById('break-bar').classList.remove('active'); showToast('▶ Queue resumed!'); }
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 2500);
+}
+</script>
+</body>
+</html>
